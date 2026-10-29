@@ -61,3 +61,5 @@ youtube-regression-analysis/
 - One snapshot of videos, not views tracked over time.
 
 *Independent data analysis project by Pay-Chern Liu.*
+
+*Built with help from AI coding tools. The analysis, model choices and conclusions are my own.*
