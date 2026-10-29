@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What Drives YouTube Views?</title>
+<meta name="description" content="A regression analysis of 17,589 YouTube videos: which factors go with more views, and can views be predicted before upload?">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="brand" href="index.html">What Drives YouTube Views?</a>
+  <nav>
+    <a href="#results">Results</a>
+    <a href="#charts">Charts</a>
+    <a href="#about">About</a>
+    <a href="https://github.com/ppc1004/youtube-regression-analysis">GitHub</a>
+  </nav>
+</div></header>
+
+<main class="wrap">
+  <section class="hero">
+    <p class="eyebrow">Regression analysis · 17,589 videos · 16 categories</p>
+    <h1>Can you predict YouTube views before a video goes live?</h1>
+    <p class="lead">I used linear regression on 17,589 YouTube videos to see which factors go with more views, and whether the information you have before uploading is enough to predict them.</p>
+    <div class="answer"><p><strong>Short answer: not with this data.</strong> Likes explain views well (69% of the variation), but likes only exist after a video is published. Using only before-upload information (category, length, resolution), the model was barely better than guessing the median.</p></div>
+  </section>
+
+  <h2 id="results">Results on test videos</h2>
+  <p>I split the data first: 80% of videos to build the models, 20% held back to test them. All scores below are on the 3,518 test videos the models never saw.</p>
+  <div class="cmp">
+    <div class="stat"><div class="label">Baseline: guess the median</div><div class="big-num">-0.02</div><div class="label">R² (a flat guess explains nothing)</div></div>
+    <div class="stat"><div class="label">Model A: with likes + comments</div><div class="big-num">0.69</div><div class="label">R², error 43% lower than baseline</div></div>
+    <div class="stat"><div class="label">Model B: before-upload info only</div><div class="big-num">0.11</div><div class="label">R², error 6% lower than baseline</div></div>
+  </div>
+  <div class="table-wrap" style="margin-top:16px">
+    <table>
+      <thead><tr><th>Model</th><th>R² (log views)</th><th>Error vs baseline</th><th>Within 2x of real views</th></tr></thead>
+      <tbody>
+        <tr><td>Baseline: guess the median</td><td>-0.02</td><td>0%</td><td>24%</td></tr>
+        <tr><td>Model A: category, length, resolution, likes, comments</td><td>0.69</td><td class="pos">-43%</td><td>40%</td></tr>
+        <tr><td>Model B: category, length, resolution only</td><td>0.11</td><td class="pos">-6%</td><td>25%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note"><strong>R²</strong> = share of the ups and downs in views the model explains (0 = no better than a flat guess, 1 = perfect). <strong>Error vs baseline</strong> = how much smaller the average error is than just guessing the median. <strong>Within 2x</strong> = share of test videos where the prediction was between half and double the real views.</p>
+
+  <h2>What I found</h2>
+  <ul class="findings">
+    <li><strong>Likes are by far the strongest factor.</strong> Roughly, 10% more likes goes with about 12% more views. But this is a link, not cause and effect: popular videos get both more views and more likes.</li>
+    <li><strong>Before-upload information alone predicts views poorly.</strong> Category matters somewhat. Length and resolution matter very little.</li>
+    <li><strong>Most videos get very few views.</strong> The median video has about 150 views, but the average is about 69,000, because a handful of viral videos pull it up. That is why the models predict log(views) instead of raw views.</li>
+    <li><strong>To predict views before publishing, you would need different data</strong>, such as channel size, title, thumbnail and upload time.</li>
+  </ul>
+
+  <h2 id="charts">Charts</h2>
+  <div class="card">
+    <img src="images/01_views_distribution.png" alt="Histogram of views on a raw scale and on a log scale">
+    <p>Raw views are extremely skewed: almost all videos sit near zero. On a log scale the shape is much closer to a bell curve, which suits linear regression.</p>
+  </div>
+  <div class="card">
+    <img src="images/02_median_views_by_category.png" alt="Bar chart of median views by video category">
+    <p>Music and Science &amp; Technology videos get more views than People &amp; Blogs. "Shows" looks very high, but it has only 12 videos in the training data, so that number is not reliable.</p>
+  </div>
+  <div class="card narrow">
+    <img src="images/03_likes_vs_views.png" alt="Scatter plot of likes against views on log scales">
+    <p>Likes and views move together very closely (correlation 0.82 on a log scale). This is why Model A scores so much higher than Model B.</p>
+  </div>
+  <div class="card">
+    <img src="images/04_category_effect_model_b.png" alt="Bar chart of each category's effect on views in Model B">
+    <p>In Model B, category is the most useful before-upload factor, but even together with length and resolution it explains only 11% of the variation.</p>
+  </div>
+
+  <h2>Limitations</h2>
+  <ul class="findings">
+    <li>Likes and views were recorded at the same time, so Model A shows a strong link, not cause and effect.</li>
+    <li>Some categories have very few videos, so their results are not reliable.</li>
+    <li>This is one snapshot of videos, not views tracked over time.</li>
+    <li>The dataset has no channel size, upload date, title quality or thumbnail information.</li>
+  </ul>
+
+  <h2 id="about">About this project</h2>
+  <p>I first did this project in Excel, then rebuilt it in Python to make each step clearer and testable:</p>
+  <ul class="findings">
+    <li><strong>Data check:</strong> loaded 17,589 videos and checked for missing values, zero-view videos and extreme values.</li>
+    <li><strong>Fair testing:</strong> split the data 80/20 before any analysis, so the test videos were only used for final scoring.</li>
+    <li><strong>Models:</strong> built a median baseline and two linear regression models, one with likes and comments and one with only before-upload information.</li>
+    <li><strong>Evaluation:</strong> compared models with R², average error and a plain "within 2x" score, and read the coefficients in plain language.</li>
+  </ul>
+  <p class="note">Tools: Python (pandas, NumPy, scikit-learn, Matplotlib), Jupyter, Git, GitHub Pages. <a href="https://github.com/ppc1004/youtube-regression-analysis/blob/main/notebooks/youtube_views_regression.ipynb">See the full notebook on GitHub</a>.</p>
+</main>
+
+<footer><div class="wrap">
+  <p>Made by Pay-Chern Liu · <a href="https://github.com/ppc1004/youtube-regression-analysis">Code on GitHub</a> · <a href="https://www.linkedin.com/in/pay-chern-liu-8033b033a">LinkedIn</a></p>
+  <p>Independent data analysis project. The raw dataset is not included in the repository.</p>
+</div></footer>
+</body>
+</html>

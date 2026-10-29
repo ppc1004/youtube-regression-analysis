@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.py[cod]
+.DS_Store
+.ipynb_checkpoints/
+*.egg-info/
+.pytest_cache/
+
+# raw data (source/license not confirmed) and the earlier version of this project
+data/
+_old_version/
